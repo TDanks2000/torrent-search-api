@@ -1,5 +1,5 @@
 {
-  "name": "StreamAbleTvApi",
+  "name": "torrentApi",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
@@ -7,6 +7,9 @@
   "scripts": {
     "start": "node --experimental-specifier-resolution=node index.js",
     "dev": "nodemon --experimental-specifier-resolution=node index.js"
+  },
+  "engines": {
+    "node": "18.12.1"
   },
   "dependencies": {
     "axios": "^1.2.2",
