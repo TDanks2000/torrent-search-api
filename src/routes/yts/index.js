@@ -1,37 +1,43 @@
+import express from "express";
+const router = express.Router();
+
 import { YTS } from "../../providers";
 
-const routes = async (fastify, options) => {
-  const yts = new YTS();
+const yts = new YTS();
 
-  fastify.get("/:query", async (request, reply) => {
-    const { query } = request.params;
-    const { page } = request.query;
+router.get("/:query", async (req, res) => {
+  const { query } = req.params;
+  const { page } = req.query;
 
-    const searchResult = await yts.search(query, page);
-    reply.send(searchResult);
-  });
+  const searchResult = await yts.search(query, page);
+  res.send(searchResult);
+});
 
-  fastify.get("/info/:mediaId", async (request, reply) => {
-    const { mediaId } = request.params;
+router.get("/info/:mediaId", async (req, res) => {
+  const { mediaId } = req.params;
 
-    const mediaInfo = await yts.fetchMediaInfo(mediaId);
-    reply.send(mediaInfo);
-  });
+  const mediaInfo = await yts.fetchMediaInfo(mediaId);
+  res.send(mediaInfo);
+});
 
-  fastify.get("/latest/4k", async (request, reply) => {
-    const searchResult = await yts.search("2160p");
-    reply.send(searchResult);
-  });
+router.get("/latest/4k", async (req, res) => {
+  const searchResult = await yts.search("2160p");
+  res.send(searchResult);
+});
 
-  fastify.get("/latest/1080p", async (request, reply) => {
-    const searchResult = await yts.search("1080p");
-    reply.send(searchResult);
-  });
+router.get("/latest/1080p", async (req, res) => {
+  const searchResult = await yts.search("1080p");
+  res.send(searchResult);
+});
 
-  fastify.get("/latest/720p", async (request, reply) => {
-    const searchResult = await yts.search("720p");
-    reply.send(searchResult);
-  });
-};
+router.get("/latest/720p", async (req, res) => {
+  const searchResult = await yts.search("720p");
+  res.send(searchResult);
+});
 
-export default routes;
+router.get("/latest/3d", async (req, res) => {
+  const searchResult = await yts.search("3d");
+  res.send(searchResult);
+});
+
+export default router;

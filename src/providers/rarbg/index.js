@@ -42,6 +42,7 @@ class Rarbg {
 
       data.torrent_results.forEach((item) => {
         const titleParser = parser.parse(item.title);
+        console.log(item);
 
         const movieResult = {
           provider: this.name,
@@ -60,6 +61,7 @@ class Rarbg {
           status: item.status,
           torrents: {
             magnet: item.download,
+            hash: item.download.split(":")[3].split("&")[0],
           },
           mappings: {
             imdb: item?.episode_info?.imdb || undefined,
@@ -116,6 +118,7 @@ class Rarbg {
           status: item.status,
           torrents: {
             magnet: item.download,
+            hash: item.download.split(":")[3].split("&")[0],
           },
           mappings: {
             imdb: item?.episode_info?.imdb || undefined,

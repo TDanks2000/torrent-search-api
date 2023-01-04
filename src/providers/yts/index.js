@@ -28,9 +28,12 @@ class YTS {
           seeders: item.seeders,
           leechers: item.leechers,
           size: utils.humanizeSize(item.size),
-          magnet: this.formatMagnet(item.info_hash, item.name),
           category: item.category,
           status: item.status,
+          torrents: {
+            magnet: this.formatMagnet(item.info_hash, item.name),
+            hash: item.info_hash,
+          },
           mappings: {
             imdb: item.imdb_code,
           },
@@ -92,6 +95,7 @@ class YTS {
               seeders: item.seeds,
               leechers: item.peers,
               magnet: this.formatMagnet(item.hash, data.title),
+              hash: item.hash,
             };
           });
     } catch (err) {
@@ -149,6 +153,7 @@ class YTS {
               seeders: item.seeds,
               leechers: item.peers,
               magnet: this.formatMagnet(item.hash, data.title),
+              hash: item.hash,
             };
           });
     } catch (err) {
@@ -196,6 +201,7 @@ class YTS {
                   seeders: torrent.seeds,
                   leechers: torrent.peers,
                   magnet: this.formatMagnet(torrent.hash, item.title),
+                  hash: torrent.hash,
                 };
               }),
         };

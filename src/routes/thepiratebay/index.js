@@ -1,22 +1,22 @@
+import express from "express";
+const router = express.Router();
+
 import { thePirateBay } from "../../providers";
+const tpb = new thePirateBay();
 
-const routes = async (fastify, options) => {
-  const tpb = new thePirateBay();
+router.get("/:query", async (req, res) => {
+  const { query } = req.params;
+  const { page } = req.query;
 
-  fastify.get("/:query", async (request, reply) => {
-    const { query } = request.params;
-    const { page } = request.query;
+  const searchResult = await tpb.search(query, page);
+  res.send(searchResult);
+});
 
-    const searchResult = await tpb.search(query, page);
-    reply.send(searchResult);
-  });
+router.get("/info/:mediaId", async (req, res) => {
+  const { mediaId } = req.params;
 
-  fastify.get("/info/:mediaId", async (request, reply) => {
-    const { mediaId } = request.params;
+  const mediaInfo = await tpb.fetchMediaInfo(mediaId);
+  res.send(mediaInfo);
+});
 
-    const mediaInfo = await tpb.fetchMediaInfo(mediaId);
-    reply.send(mediaInfo);
-  });
-};
-
-export default routes;
+export default router;

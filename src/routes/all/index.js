@@ -1,34 +1,34 @@
+import express from "express";
+const router = express.Router();
+
 import { thePirateBay, Rarbg, YTS } from "../../providers";
+const tpb = new thePirateBay();
+const rarbg = new Rarbg();
+const yts = new YTS();
 
-const routes = async (fastify, options) => {
-  const tpb = new thePirateBay();
-  const rarbg = new Rarbg();
-  const yts = new YTS();
+router.get("/:query", async (req, res) => {
+  const { query } = req.params;
+  const { page } = req.query;
 
-  fastify.get("/:query", async (request, reply) => {
-    const { query } = request.params;
-    const { page } = request.query;
+  const results = [
+    ...(await tpb.search(query, page)).results,
+    ...(await rarbg.search(query, page)).results,
+    ...(await yts.search(query, page)).results,
+  ];
 
-    const results = [
-      ...(await tpb.search(query, page)).results,
-      ...(await rarbg.search(query, page)).results,
-      ...(await yts.search(query, page)).results,
-    ];
+  res.send(results);
+});
 
-    reply.send(results);
-  });
+router.get("/imdb/:imdbId", async (req, res) => {
+  const { imdbId } = req.params;
+  const { page } = req.query;
 
-  fastify.get("/imdb/:imdbId", async (request, reply) => {
-    const { imdbId } = request.params;
-    const { page } = request.query;
+  const results = [
+    ...(await rarbg.searchFromIMDB(imdbId, page)).results,
+    await yts.searchFromIMDB(imdbId, page),
+  ];
 
-    const results = [
-      ...(await rarbg.searchFromIMDB(imdbId, page)).results,
-      await yts.searchFromIMDB(imdbId, page),
-    ];
+  res.send(results);
+});
 
-    reply.send(results);
-  });
-};
-
-export default routes;
+export default router;

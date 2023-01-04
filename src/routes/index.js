@@ -1,21 +1,21 @@
+import express from "express";
+const router = express.Router();
+
 import thePirateBay from "./thepiratebay";
 import yts from "./yts";
 import rarbg from "./rarbg";
 import All from "./all";
 import Stream from "./stream";
 
-const routes = async (fastify, options) => {
-  fastify.get(
-    "/",
-    async (request, reply) => "welcome to the torrent search api!"
-  );
+router.use("/tpb", thePirateBay);
+router.use("/yts", yts);
+router.use("/rarbg", rarbg);
+router.use("/all", All);
 
-  fastify.register(thePirateBay, { prefix: "/tpb" });
-  fastify.register(yts, { prefix: "/yts" });
-  fastify.register(rarbg, { prefix: "/rarbg" });
-  fastify.register(All, { prefix: "/all" });
+router.use("/torrent", Stream);
 
-  fastify.register(Stream, { prefix: "/torrent" });
-};
+router.get("/", (req, res) => {
+  res.send("welcome to the torrent search api!");
+});
 
-export default routes;
+export default router;

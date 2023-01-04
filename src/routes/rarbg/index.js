@@ -1,20 +1,20 @@
+import express from "express";
+const router = express.Router();
 import { Rarbg } from "../../providers";
 
-const routes = async (fastify, options) => {
-  const rarbg = new Rarbg();
+const rarbg = new Rarbg();
 
-  fastify.get("/:query", async (request, reply) => {
-    const { query } = request.params;
-    const { page } = request.query;
+router.get("/:query", async (req, res) => {
+  const { query } = req.params;
+  const { page } = req.query;
 
-    const searchResult = await rarbg.search(query, page);
-    reply.send(searchResult);
-  });
+  const searchResult = await rarbg.search(query, page);
+  res.send(searchResult);
+});
 
-  fastify.get("/info/:mediaId", async (request, reply) => {
-    const { mediaId } = request.params;
-    reply.send(`method not implemented yet`);
-  });
-};
+router.get("/info/:mediaId", async (req, res) => {
+  const { mediaId } = req.params;
+  res.send(`method not implemented yet`);
+});
 
-export default routes;
+export default router;

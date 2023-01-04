@@ -31,9 +31,12 @@ class thePirateBay {
           seeders: item.seeders,
           leechers: item.leechers,
           size: utils.humanizeSize(item.size),
-          magnet: this.formatMagnet(item.info_hash, item.name),
           category: item.category,
           status: item.status,
+          torrents: {
+            magnet: this.formatMagnet(item.info_hash, item.name),
+            hash: item.info_hash,
+          },
           mappings: {
             imdb: item.imdb,
           },
@@ -41,6 +44,7 @@ class thePirateBay {
         searchResult.results.push(movieResult);
       });
     } catch (err) {
+      console.log(err);
       throw new Error(err.message);
     }
 
@@ -69,12 +73,15 @@ class thePirateBay {
       mediaInfo.resolution = titleParser?.resolution || undefined;
 
       mediaInfo.audio = titleParser?.audio || undefined;
-      mediaInfo.magnet = this.formatMagnet(data.info_hash, data.name);
       mediaInfo.seeders = data.seeders;
       mediaInfo.leechers = data.leechers;
       mediaInfo.time = new Date(parseInt(data.added) * 1000).toUTCString();
       mediaInfo.category = data.category;
       mediaInfo.status = data.status;
+      mediaInfo.torrents = {
+        magnet: this.formatMagnet(data.info_hash, data.name),
+        hash: data.info_hash,
+      };
       mediaInfo.mappings = {
         imdb: data.imdb,
       };
