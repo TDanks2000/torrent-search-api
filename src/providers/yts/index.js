@@ -19,6 +19,7 @@ class YTS {
 
       data.data.movies.forEach((item) => {
         const movieResult = {
+          provider: this.name,
           title: item.title,
           year: item.year,
 
@@ -44,8 +45,7 @@ class YTS {
   }
 
   async fetchMediaInfo(mediaId) {
-    const mediaInfoURL = `${this.baseUrl}/api/v2/movie_details.json?imdb_id=${mediaId}&with_images=true&with_cast=true`;
-    console.log(mediaInfoURL);
+    const mediaInfoURL = `${this.baseUrl}/api/v2/movie_details.json?movie_id=${mediaId}&with_images=true&with_cast=true`;
 
     const mediaInfo = {
       id: mediaId,
@@ -56,6 +56,64 @@ class YTS {
       let { data } = await axios.get(`${this.proxyUrl}/${mediaInfoURL}`);
       data = data.data.movie;
 
+      mediaInfo.provider = this.name;
+      mediaInfo.id = data?.id;
+      mediaInfo.title = data.title;
+      mediaInfo.year = data.year;
+      mediaInfo.genres = data.genres;
+      mediaInfo.cast = !data?.cast
+        ? undefined
+        : data.cast.map((item) => {
+            return {
+              name: item.name,
+              character: item.character_name,
+              image: item.url_small_image,
+              mappings: {
+                imdb: item.imdb_code,
+              },
+            };
+          });
+      mediaInfo.description = data.description_full;
+      mediaInfo.mappings = {
+        imdb: data.imdb_code,
+      };
+      mediaInfo.trailer = {
+        id: data.yt_trailer_code,
+        url: `https://www.youtube.com/watch?v=${data.yt_trailer_code}`,
+      };
+      mediaInfo.torrents = !data?.torrents
+        ? undefined
+        : data.torrents.map((item) => {
+            return {
+              quality: item.quality,
+              size: utils.humanizeSize(item.size_bytes),
+              type: item.type,
+              url: item.url,
+              seeders: item.seeds,
+              leechers: item.peers,
+              magnet: this.formatMagnet(item.hash, data.title),
+            };
+          });
+    } catch (err) {
+      throw new Error(err.message);
+    }
+
+    return mediaInfo;
+  }
+
+  async searchFromIMDB(imdbId) {
+    const mediaInfoURL = `${this.baseUrl}/api/v2/movie_details.json?imdb_id=${imdbId}&with_images=true&with_cast=true`;
+
+    const mediaInfo = {
+      id: imdbId,
+      title: "",
+    };
+
+    try {
+      let { data } = await axios.get(`${this.proxyUrl}/${mediaInfoURL}`);
+      data = data.data.movie;
+
+      mediaInfo.provider = this.name;
       mediaInfo.id = data?.id;
       mediaInfo.title = data.title;
       mediaInfo.year = data.year;

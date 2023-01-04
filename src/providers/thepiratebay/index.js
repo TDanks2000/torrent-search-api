@@ -20,6 +20,7 @@ class thePirateBay {
       data.forEach((item) => {
         const titleParser = parser.parse(item.name);
         const movieResult = {
+          provider: this.name,
           title: titleParser?.title || data.name,
           year: titleParser?.year || undefined,
           group: titleParser?.group || undefined,
@@ -59,6 +60,7 @@ class thePirateBay {
 
       const titleParser = parser.parse(data.name);
 
+      mediaInfo.provider = this.name;
       mediaInfo.id = data.id;
       mediaInfo.title = titleParser?.title || data.name;
       mediaInfo.year = titleParser?.year || undefined;

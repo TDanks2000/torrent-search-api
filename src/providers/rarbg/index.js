@@ -44,6 +44,7 @@ class Rarbg {
         const titleParser = parser.parse(item.title);
 
         const movieResult = {
+          provider: this.name,
           title: titleParser?.title || data.name,
           year: titleParser?.year || undefined,
           group: titleParser?.group || undefined,
@@ -54,10 +55,12 @@ class Rarbg {
           seeders: item.seeders,
           leechers: item.leechers,
           size: utils.humanizeSize(item.size),
-          magnet: item.magnet,
           description: item.info_page,
           category: item.category,
           status: item.status,
+          torrents: {
+            magnet: item.download,
+          },
           mappings: {
             imdb: item?.episode_info?.imdb || undefined,
             tvdb: item?.episode_info?.tvdb || undefined,
@@ -77,13 +80,65 @@ class Rarbg {
     throw new Error("Not implemented");
   }
 
+  async searchFromIMDB(imdbId, page = 1, perPage = 100) {
+    await this.ensureLogin();
+    await this.sleep(2200);
+
+    if (typeof this.token === "undefined") throw new Error("Token not found");
+
+    const searchURL = `${this.baseUrl}/pubapi_v2.php?mode=search&search_imdb=${imdbId}&app_id=torrenter&sort=seeders&limit=${perPage}&format=json_extended&token=${this.token}`;
+
+    const searchResult = {
+      currentPage: page,
+      results: [],
+    };
+
+    try {
+      const { data } = await axios.get(searchURL);
+
+      data?.torrent_results.forEach((item) => {
+        const titleParser = parser.parse(item.title);
+
+        const movieResult = {
+          provider: this.name,
+          title: titleParser?.title || data.name,
+          year: titleParser?.year || undefined,
+          group: titleParser?.group || undefined,
+          quality: titleParser?.quality || undefined,
+          resolution: titleParser?.resolution || undefined,
+          id: item.id,
+          date: new Date(item.pubdate).toUTCString(),
+          seeders: item.seeders,
+          leechers: item.leechers,
+          size: utils.humanizeSize(item.size),
+          description: item.info_page,
+          category: item.category,
+          status: item.status,
+          torrents: {
+            magnet: item.download,
+          },
+          mappings: {
+            imdb: item?.episode_info?.imdb || undefined,
+            tvdb: item?.episode_info?.tvdb || undefined,
+            tmdb: item?.episode_info?.themoviedb || undefined,
+          },
+        };
+        searchResult.results.push(movieResult);
+      });
+    } catch (err) {
+      throw new Error(err.message);
+    }
+
+    return searchResult;
+  }
+
   async ensureLogin() {
     if (!this.lastLoginTime || Date.now() - this.lastLoginTime > 840000) {
       const loginURL = `${this.baseUrl}/pubapi_v2.php?get_token=get_token&app_id=NodeTorrentSearchApi`;
       try {
         const { data } = await axios.get(loginURL);
         //wait 2 seconds to avoid doing more than 1 req per 2 secs
-        await this.sleep(new Date().getTime() + 2 * 1000);
+        await this.sleep(2200);
 
         this.lastLoginTime = Date.now();
         this.token = data.token;
